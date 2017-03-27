@@ -1,4 +1,4 @@
-;Найти в строке символы с минимальным и максимальным кодом.
+;Finding chars with minimal and maximal codes in given string.
 
 
 section .bss
@@ -12,6 +12,7 @@ section .text
 
 extern printf
 global main
+
 
 main:
     ;User input:
