@@ -14,7 +14,6 @@ extern printf
 global main
 
 main:
-
     ;User input:
     mov     eax, 3;         3 - system read function
     mov     ebx, 0;         0 - for stdin
