@@ -5,26 +5,24 @@ section .bss
     text: resb 1
 
 section .data
-    max_bytes: dd 100
-    msg: db "min_code_index:%d, max_code_index:%d", 10, 0
+    max_bytes: dd 256
+    format: dd "min_code_index:%d, max_code_index:%d", 10, 0
 
 section .text
-
 extern printf
 global main
 
 
 main:
-    ;User input:
-    mov     eax, 3;         3 - system read function
+;User input:
+    mov     eax, 3;         3 - system read line function
     mov     ebx, 0;         0 - for stdin
     mov     ecx, text;      memory location for input
     mov     edx, max_bytes; max number of bytes to read
     int     0x80;           system interrupt
 
-
-    ;Searching for index of character with max & min code:
-    ;(eax - max_code_index, edx - min_code_index)
+;Searching for index of character with max & min code:
+;(eax - max_code_index, edx - min_code_index)
     xor     edx, edx;   min code index
     xor     eax, eax;   max code index
     mov     ebx, text;  base
@@ -52,13 +50,13 @@ CONTINUE:
     jmp     WHILE
 EXIT:
 
-
-    ;PROGRAM OUTPUT
-    ;Preparing stack frames:
+;PROGRAM OUTPUT
+;Preparing stack frames:
     push    eax
     push    edx
-    mov     eax, msg
+    mov     eax, format
     push    eax
-
     call    printf;     calling C function
     add     esp, 12;    clearing stack frames
+    
+    ret;    stop
