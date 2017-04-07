@@ -1,11 +1,11 @@
-;Count matrix columns
-;that contain only elements with absolute value
+;Count matrix columns that
+;contain only elements with absolute value
 ;less than given positive number (named "value").
 ;Matrix is represented as array of lines.
 
 
 section .bss
-    x: resd 1;      <- this is given positive number
+    x: resd 1;      <-  this is given positive number
     matrix: resd 1
     m_width: resd 1
     m_height: resd 1
@@ -22,6 +22,8 @@ extern malloc
 global main
 
 main:
+    mov ebp, esp;   for correct debugging
+
 ;Read matrix size & given value
     push    x
     push    m_height
@@ -44,17 +46,26 @@ allocateMatrixMemory:
     push    esi
     call    dword malloc;   result: lines array addres -> eax
     pop     esi;            clearing stack
+    shr     esi, 2
     push    eax;            saving array addres to stack
     ;matrix height -> esi
     xor     ecx, ecx
     CYCLE:
             cmp     ecx, esi
             jae     EXIT
+
+            push    ecx;    saving counter
+            push    esi;    saving matrix height
+
             mov     edi, [m_width]; preparing size
             shl     edi, 2;         ...
             push    edi;            pushing to stack
-            call    malloc;         calling c function
+            call    dword malloc;   calling c function
             add     esp, 4;         clearing stack
+            
+            pop     esi;    getting back matrix height
+            pop     ecx;    getting back counter
+
             inc     ecx
     jmp CYCLE
     EXIT:
@@ -67,40 +78,33 @@ readMatrix:
 ;Matrix address in eax.
 ;(eax <- matrix base addres)
     xor     esi, esi;                   making line index zero
-    CYCLE1:
+    CYCLE_LINES:
         xor     edi, edi;               making column index zero
         mov     ebx, [eax + esi * 4];   getting current line addres
         push    eax;                    saving lines array addres
-        CYCLE2:
+        CYCLE_COLUMNS:
             ;saving indexes...
             push    edi
             push    esi
 
             ;writing to [ebx + edi * 4] from user input...
-            xor     eax, eax
-            mov     eax, edi
-            shl     eax, 2
-            add     eax, ebx
+            lea     eax, [ebx + edi * 4]
             push    eax
             push    format_input_element
             call    scanf
             add     esp, 8
-            
-            xor     eax, eax
-            xor     edi, edi
-            xor     esi, esi
 
-            ;getting everythin back...
+            ;getting everything back...
             pop     esi
             pop     edi
 
             inc     edi
             cmp     edi, [m_width]
-            jb      CYCLE2
-        pop     eax;        getting back lines array addres
+            jb      CYCLE_COLUMNS
+        pop     eax;    getting back lines array addres
         inc     esi
         cmp     esi, [m_height]
-        jb      CYCLE1
+        jb      CYCLE_LINES
     ret;        RETURN
 
 

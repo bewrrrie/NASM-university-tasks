@@ -59,4 +59,4 @@ EXIT:
     call    printf;     calling C function
     add     esp, 12;    clearing stack frames
     
-    ret;    stop
+    ret;    RETURN
