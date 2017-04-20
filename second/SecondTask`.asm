@@ -1,6 +1,6 @@
 ;Count matrix columns that
 ;contain only elements with absolute value
-;less than given positive number (named "value").
+;less than given positive number (named "x").
 ;Matrix is represented as array of lines.
 
 section .bss
@@ -12,7 +12,7 @@ section .bss
 section .data
     format_input: dd "%d %d %d/n", 10, 0
     format_input_element: dd "%d", 10, 0
-    format_output_result: dd "%d", 10, 0
+    format_output_result: dd "result:%d", 10, 0
     format_output_element: dd "%d ", 10, 0
 
 section .text
@@ -123,5 +123,34 @@ readMatrix:
 
 
 countColsWithAbsValueLessThanX:
-    
+;Count matrix columns that contain only elements
+;with absolute value less than x.
+
+    xor     eax, eax;       eax <- columns quantity
+    mov     ebx, [matrix];  ebx <- lines array base addres
+    xor     edi, edi;       esi <- column index
+    COUNT_CYCLE_COLUMNS:
+        xor     esi, esi;   esi <- line index
+        COUNT_CYCLE_LINES:
+            mov     edx, [ebx + esi * 4]
+            mov     edx, [edx + edi * 4];   edx <- current element
+
+;           abs(x) = (x xor y) - y
+;           where y = x >> 31
+            mov     ecx, edx
+            sar     ecx, 0x1f
+            xor     edx, ecx
+            sub     edx, ecx;   edx <- cur.element absolute value
+
+            cmp     edx, [x]
+            jae     ITER_END
+
+            inc     esi
+            cmp     esi, [m_height]
+            jb      COUNT_CYCLE_LINES
+        inc     eax;    increasing columns quantity
+        ITER_END:
+        inc     edi
+        cmp     edi, [m_width]
+        jb      COUNT_CYCLE_COLUMNS
     ret
