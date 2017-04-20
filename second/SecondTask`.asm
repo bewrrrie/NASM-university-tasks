@@ -11,7 +11,7 @@ section .bss
 
 section .data
     format_input: dd "%d %d %d/n", 10, 0
-    format_input_element: dd "%d", 10, 0
+    format_input_element: dd "%d ", 10, 0
     format_output_result: dd "result:%d", 10, 0
     format_output_element: dd "%d ", 10, 0
 
@@ -95,17 +95,18 @@ readMatrix:
     READ_CYCLE_LINES:
         push    ebx
         push    esi
-    
+
         mov     edx, [ebx + esi * 4];   edx <- current line base addres
         xor     edi, edi;               edi <- column index
         READ_CYCLE_COLUMNS:
-            lea     edx, [edx + edi * 4]
+            lea     ecx, [edx + edi * 4]
 
             push    edi;                saving col.index to stack
             push    edx
+            push    ecx
             push    format_input_element
             call    scanf
-            add     esp, 4
+            add     esp, 8
             pop     edx
             pop     edi;                returning col.index from stack
 
@@ -143,12 +144,12 @@ countColsWithAbsValueLessThanX:
             sub     edx, ecx;   edx <- cur.element absolute value
 
             cmp     edx, [x]
-            jae     ITER_END
+            jge     ITER_END
 
             inc     esi
             cmp     esi, [m_height]
             jb      COUNT_CYCLE_LINES
-        inc     eax;    increasing columns quantity
+        inc     eax;            increasing columns quantity
         ITER_END:
         inc     edi
         cmp     edi, [m_width]
