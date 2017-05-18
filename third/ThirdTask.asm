@@ -2,8 +2,8 @@
 ;As an example integrate functions cos(x), x, exp(x).
 
 section .bss
-    a: resq 1;      | definite integral with
-    b: resq 1;      | integration borders - [a,b].
+    a: resq 1;      |definite integral with
+    b: resq 1;      |integration borders - [a,b].
     tmp: resq 1;    - temporary real number storage.
 
     n: resd 1;  segments quantity.
@@ -43,7 +43,11 @@ main:
 Function:
 ;Function that is gonna be integrated.
 ;(When called it is supposed that argument is in the top of coprocessor stack)
-    fsin
+    fcos
+    
+    ;fstp    st0
+    ;fld1
+    ; - CONST. function, f(x) = 1;
     ret
 
 
@@ -72,30 +76,42 @@ integrateFunction:
     fdivp   st1, st0;       (b-a)/n | summ      |               |
     fld     qword [a];      a       | (b-a)/n   | summ          |
 ;                                   |           |               |
-    fld1;                   i = 0   | a         |step:=(b-a)/n  | summ
+    fldz;                   i = 0   | a         |step:=(b-a)/n  | summ
     mov     ecx, [n]
     SUMM_CYCLE:;            st0:    |st1:   |st2:   |st3:       |st4:
 ;                            i      | a     | step  | summ      |
         fld     st0;         i      | i     | a     | step      | summ
         fmul    st0, st3;    i*step | i     | a     | step      | summ
         fadd    st0, st2;  i*step+a | i     | a     | step      | summ
-        fld1
-        fld1
+
+;                               st0:     |st1:   |st2:   |st3:       |
+        fadd    st0, st0;   2*(i*step+a) | i     | a     | step      | summ
+        fadd    st0, st3; (2i+1)*step+2*a| i     | a     | step      | summ
+        
+        fld1;                   1   |i*step+a| i      | a       | step  | summ
+        fld1;                   1   |   1    |i*step+a| i       | a     | step   | summ
         faddp   st1, st0;        2  |i*st.+a| i     | a         | step  | summ
+
         fdivp   st1, st0;    (..)/2 | i     | a     | step      | summ
 
         call    Function;    F(..)  | i     | a     | step      | summ
-        fmul    st0, st3; F(..)*st. | i     | a     | step      | summ
+        fmul    st0, st3; F(..)*step| i     | a     | step      | summ
 ;                                   |       |       |
         faddp   st4, st0;    i      | a     | step  | summ + F(..)
 ;                                   |       |       |
         fld1;                1      | i     | a     | step      | summ + F(..)
-        faddp   st1, st0;    i + 1  | a     | step  | summ + cos|
+        faddp   st1, st0;    i + 1  | a     | step  | summ+F(..)|
     loop    SUMM_CYCLE
-    fstp    st0
+    fstp    st0;              a     | step  | RESULT
     EQUALS:
     fstp    st0
     fstp    st0
+
+;    mov     eax, [esp]
+;    cmp     eax, 0
+;    je      END
+;    fchs
+;    END:
     ret
 
 

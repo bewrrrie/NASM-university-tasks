@@ -49,6 +49,7 @@ main:
     call    printf
     add     esp, 8
     END:
+    xor     eax, eax
     ret;    RETURN
 
 
