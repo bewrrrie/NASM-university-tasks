@@ -41,13 +41,29 @@ main:
 
 
 Function:
-;Function that is gonna be integrated.
+;Function that is going to be integrated.
 ;(When called it is supposed that argument is in the top of coprocessor stack)
-    fcos
-    
+
+    ;fcos
+
+
+    fsin; <- current example
+
+
     ;fstp    st0
     ;fld1
-    ; - CONST. function, f(x) = 1;
+    ; - Constant function, f(x) = 1.
+    
+    
+    ;mov     dword eax, 4
+    ;mov     [tmp], eax
+    ;fild    qword [tmp]
+    ;fmulp   st1, st0
+    ;mov     dword eax, 2
+    ;mov     [tmp], eax
+    ;fild    qword [tmp]
+    ;faddp   st1, st0
+    ; - Linear function, f(x) = 4x + 2.
     ret
 
 
@@ -84,19 +100,17 @@ integrateFunction:
         fmul    st0, st3;    i*step | i     | a     | step      | summ
         fadd    st0, st2;  i*step+a | i     | a     | step      | summ
 
-;                               st0:     |st1:   |st2:   |st3:       |
+;                            st0:        |st1:   |st2:   |st3:       |st4:
         fadd    st0, st0;   2*(i*step+a) | i     | a     | step      | summ
         fadd    st0, st3; (2i+1)*step+2*a| i     | a     | step      | summ
-        
-        fld1;                   1   |i*step+a| i      | a       | step  | summ
-        fld1;                   1   |   1    |i*step+a| i       | a     | step   | summ
-        faddp   st1, st0;        2  |i*st.+a| i     | a         | step  | summ
 
+;                            st0:   |st1:    |st2:  |st3:       |st4:   |st5:    |st6:
+        fld1;                   1   |i*step+a| i    | a         | step  | summ   |
+        fld1;                   1   |   1   |i*step+a| i        | a     | step   | summ
+        faddp   st1, st0;        2  |i*st.+a| i     | a         | step  | summ   |
         fdivp   st1, st0;    (..)/2 | i     | a     | step      | summ
-
         call    Function;    F(..)  | i     | a     | step      | summ
         fmul    st0, st3; F(..)*step| i     | a     | step      | summ
-;                                   |       |       |
         faddp   st4, st0;    i      | a     | step  | summ + F(..)
 ;                                   |       |       |
         fld1;                1      | i     | a     | step      | summ + F(..)
