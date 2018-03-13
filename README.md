@@ -2,7 +2,7 @@
 Assembly language (NASM) university tasks.
 
 Task 1.
-Find first symbol with maximal/minimal code in string.  
+Find symbol with maximal/minimal code in string.  
 Задача 1.
 Найти в строке символы с минимальным и максимальным кодом.
 
